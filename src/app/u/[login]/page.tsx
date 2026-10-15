@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: PageProps<"/u/[login]">) {
 export default function ProfilePage({ params }: PageProps<"/u/[login]">) {
   return (
     <div className="space-y-10">
-      <Link href="/" className="text-sm text-muted hover:text-fg">
+      <Link href="/" className="inline-block text-sm text-muted hover:text-fg">
         ← Leaderboard
       </Link>
       <Suspense fallback={<div className="h-64 rounded-lg border border-line bg-card" aria-hidden />}>
