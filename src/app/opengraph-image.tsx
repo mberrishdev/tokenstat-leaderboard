@@ -29,9 +29,7 @@ export default function Image() {
           fontFamily: "monospace",
         }}
       >
-        <div style={{ display: "flex", fontSize: 32, letterSpacing: -0.5 }}>
-          tokenstat<span style={{ color: "#8f8a80" }}>/</span>leaderboard
-        </div>
+        <div style={{ display: "flex", fontSize: 32, letterSpacing: -0.5 }}>tokenstat/leaderboard</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
           <div style={{ display: "flex", fontSize: 76, fontWeight: 700, letterSpacing: -2, lineHeight: 1.05 }}>
             Who burns the most tokens?
