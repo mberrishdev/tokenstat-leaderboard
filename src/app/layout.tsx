@@ -16,6 +16,8 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: { default: "tokenstat leaderboard", template: "%s · tokenstat leaderboard" },
   description: "Who burns the most Claude Code, Codex, and Copilot tokens. Totals come from tokenstat, which reads local session logs.",
+  metadataBase: new URL("https://tokenstat-leaderboard.vercel.app"),
+  twitter: { card: "summary_large_image" },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
