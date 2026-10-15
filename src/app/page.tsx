@@ -22,7 +22,7 @@ import {
 const INSTALL = "git clone https://github.com/mberrishdev/tokenstat && cd tokenstat && go install .";
 
 const RANGE_LABELS: Record<Range, string> = { "7d": "7 days", "30d": "30 days", "90d": "90 days", all: "All time" };
-const TOOL_LABELS = { all: "All tools", claude: "Claude Code", codex: "Codex" } as const;
+const TOOL_LABELS = { all: "All tools", claude: "Claude Code", codex: "Codex", copilot: "Copilot" } as const;
 
 export default function Home({ searchParams }: PageProps<"/">) {
   return (
@@ -30,7 +30,7 @@ export default function Home({ searchParams }: PageProps<"/">) {
       <section className="space-y-3">
         <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Who burns the most tokens?</h1>
         <p className="max-w-2xl text-muted">
-          Claude Code and Codex token totals from{" "}
+          Claude Code, Codex, and GitHub Copilot CLI token totals from{" "}
           <a className="underline decoration-line underline-offset-4 hover:text-fg" href="https://github.com/tornikegomareli/tokenstat">
             tokenstat
           </a>

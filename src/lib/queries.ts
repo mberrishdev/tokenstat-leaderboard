@@ -17,7 +17,7 @@ function plain<T extends object>(rows: readonly T[]): T[] {
 
 export const RANGES = { "7d": 7, "30d": 30, "90d": 90, all: null } as const;
 export type Range = keyof typeof RANGES;
-export const TOOLS = ["all", "claude", "codex"] as const;
+export const TOOLS = ["all", "claude", "codex", "copilot"] as const;
 export type ToolFilter = (typeof TOOLS)[number];
 export const SORTS = { total: "All tokens", output: "Output", fresh: "Without cache reads" } as const;
 export type Sort = keyof typeof SORTS;
@@ -117,7 +117,7 @@ export type Profile = {
   lastSubmit: string | null;
   allTime: Totals & { activeDays: number; firstDay: string | null };
   rank30: number | null;
-  daily: (Totals & { day: string; claude: number; codex: number })[];
+  daily: (Totals & { day: string; claude: number; codex: number; copilot: number })[];
   models: (Totals & { model: string; tool: string })[];
 };
 
@@ -139,13 +139,14 @@ export async function profile(login: string): Promise<Profile | null> {
         select user_id, rank() over (order by sum(input + output + cache_read + cache_write) desc) as rank
         from usage_daily where day > current_date - 30 group by user_id
       ) r where user_id = ${user.id}`,
-    sql<(Totals & { day: string; claude: number; codex: number })[]>`
+    sql<(Totals & { day: string; claude: number; codex: number; copilot: number })[]>`
       select g.day::date::text as day,
         coalesce(sum(d.input), 0)::float8 as input, coalesce(sum(d.output), 0)::float8 as output,
         coalesce(sum(d.cache_read), 0)::float8 as "cacheRead", coalesce(sum(d.cache_write), 0)::float8 as "cacheWrite",
         coalesce(sum(d.input + d.output + d.cache_read + d.cache_write), 0)::float8 as total,
         coalesce(sum(d.input + d.output + d.cache_read + d.cache_write) filter (where d.tool = 'claude'), 0)::float8 as claude,
-        coalesce(sum(d.input + d.output + d.cache_read + d.cache_write) filter (where d.tool = 'codex'), 0)::float8 as codex
+        coalesce(sum(d.input + d.output + d.cache_read + d.cache_write) filter (where d.tool = 'codex'), 0)::float8 as codex,
+        coalesce(sum(d.input + d.output + d.cache_read + d.cache_write) filter (where d.tool = 'copilot'), 0)::float8 as copilot
       from generate_series(current_date - 29, current_date, interval '1 day') g(day)
       left join usage_daily d on d.day = g.day::date and d.user_id = ${user.id}
       group by g.day order by g.day`,

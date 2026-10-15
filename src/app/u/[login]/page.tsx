@@ -6,6 +6,8 @@ import { CompositionBar, TOKEN_TYPES, TokenLegend } from "@/components/compositi
 import { formatDay, formatTokens, shortModel } from "@/lib/format";
 import { profile } from "@/lib/queries";
 
+const TOOL_NAMES: Record<string, string> = { claude: "Claude Code", codex: "Codex", copilot: "Copilot" };
+
 export async function generateMetadata({ params }: PageProps<"/u/[login]">) {
   const { login } = await params;
   return { title: decodeURIComponent(login) };
@@ -65,6 +67,9 @@ async function Profile({ params }: { params: PageProps<"/u/[login]">["params"] }
             <li className="flex items-center gap-1.5">
               <span className="inline-block size-2.5 rounded-sm bg-codex" /> Codex
             </li>
+            <li className="flex items-center gap-1.5">
+              <span className="inline-block size-2.5 rounded-sm bg-copilot" /> Copilot
+            </li>
           </ul>
         </div>
         <div className="rounded-lg border border-line bg-card p-4">
@@ -75,7 +80,8 @@ async function Profile({ params }: { params: PageProps<"/u/[login]">["params"] }
                 className="group relative flex h-full flex-1 flex-col justify-end"
                 title={`${formatDay(d.day)}: ${formatTokens(d.total)}`}
               >
-                <div className="w-full rounded-t-[2px] bg-codex" style={{ height: `${(d.codex / maxDay) * 100}%` }} />
+                <div className="w-full rounded-t-[2px] bg-copilot" style={{ height: `${(d.copilot / maxDay) * 100}%` }} />
+                <div className="w-full bg-codex" style={{ height: `${(d.codex / maxDay) * 100}%` }} />
                 <div
                   className="w-full bg-claude"
                   style={{ height: `${(d.claude / maxDay) * 100}%` }}
@@ -104,7 +110,7 @@ async function Profile({ params }: { params: PageProps<"/u/[login]">["params"] }
             >
               <span className="min-w-0">
                 <span className="num block truncate text-sm">{shortModel(m.model)}</span>
-                <span className="block text-xs text-muted">{m.tool === "codex" ? "Codex" : "Claude Code"}</span>
+                <span className="block text-xs text-muted">{TOOL_NAMES[m.tool] ?? m.tool}</span>
               </span>
               <span className="col-span-2 row-start-2 sm:col-span-1 sm:row-start-auto">
                 <CompositionBar totals={m} max={maxModel} />

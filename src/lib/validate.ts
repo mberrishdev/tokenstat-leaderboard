@@ -2,7 +2,7 @@
 
 export type DayRow = {
   day: string;
-  tool: "claude" | "codex";
+  tool: "claude" | "codex" | "copilot";
   model: string;
   input: number;
   output: number;
@@ -42,7 +42,7 @@ export function validateRows(body: unknown, now = new Date()): { rows: DayRow[] 
     if (typeof day !== "string" || !DAY.test(day) || Number.isNaN(Date.parse(day))) return bad("day must be YYYY-MM-DD");
     if (day > latest) return bad("day is in the future");
     if (day < earliest) return bad(`day is more than ${MAX_AGE_DAYS} days old`);
-    if (tool !== "claude" && tool !== "codex") return bad("tool must be claude or codex");
+    if (tool !== "claude" && tool !== "codex" && tool !== "copilot") return bad("tool must be claude, codex, or copilot");
     if (typeof model !== "string" || !MODEL.test(model)) return bad("model is not valid");
     for (const [name, v] of Object.entries({ input, output, cacheRead, cacheWrite })) {
       if (!count(v, MAX_TOKENS)) return bad(`${name} must be a whole number from 0 to ${MAX_TOKENS}`);

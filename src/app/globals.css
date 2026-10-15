@@ -8,6 +8,7 @@
   --line: #e3e0d6;
   --claude: #c25a36;
   --codex: #2f62d0;
+  --copilot: #2f8f4e;
   /* Token types, one hue from light to strong: cache read is the bulk. */
   --t-cache-read: #ecd9c4;
   --t-cache-write: #dba57a;
@@ -25,6 +26,7 @@
     --line: #2a2924;
     --claude: #e2805a;
     --codex: #6d97f2;
+    --copilot: #5cc27c;
     --t-cache-read: #4a3426;
     --t-cache-write: #8a5636;
     --t-input: #c97a4a;
@@ -41,6 +43,7 @@
   --color-line: var(--line);
   --color-claude: var(--claude);
   --color-codex: var(--codex);
+  --color-copilot: var(--copilot);
   --color-gold: var(--gold);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);

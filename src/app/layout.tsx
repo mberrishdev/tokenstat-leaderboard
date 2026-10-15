@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: { default: "tokenstat leaderboard", template: "%s · tokenstat leaderboard" },
-  description: "Who burns the most Claude Code and Codex tokens. Totals come from tokenstat, which reads local session logs.",
+  description: "Who burns the most Claude Code, Codex, and Copilot tokens. Totals come from tokenstat, which reads local session logs.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
