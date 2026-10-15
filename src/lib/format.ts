@@ -19,6 +19,15 @@ export function formatDay(day: string): string {
   return new Date(day + "T00:00:00Z").toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
 }
 
+export function formatWeekday(day: string): string {
+  return new Date(day + "T00:00:00Z").toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+}
+
 // shortModel trims the date suffix that some model ids carry.
 export function shortModel(model: string): string {
   return model.replace(/-\d{8}$/, "");

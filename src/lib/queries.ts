@@ -117,7 +117,17 @@ export type Profile = {
   lastSubmit: string | null;
   allTime: Totals & { activeDays: number; firstDay: string | null; devices: number };
   rank30: number | null;
-  daily: (Totals & { day: string; claude: number; codex: number; copilot: number })[];
+  // The last 30 days, oldest first. rank is among everyone with tokens
+  // that day; days without tokens have rank null.
+  daily: (Totals & {
+    day: string;
+    claude: number;
+    codex: number;
+    copilot: number;
+    rank: number | null;
+    people: number;
+    topModel: string | null;
+  })[];
   models: (Totals & { model: string; tool: string })[];
 };
 
@@ -130,7 +140,7 @@ export async function profile(login: string): Promise<Profile | null> {
     from users where lower(login) = lower(${login})`;
   if (!user) return null;
 
-  const [allTime, rank, daily, models] = await Promise.all([
+  const [allTime, rank, daily, models, dayRanks] = await Promise.all([
     sql<(Totals & { activeDays: number; firstDay: string | null; devices: number })[]>`
       select ${totalsCols(sql)}, count(distinct d.day)::int as "activeDays", min(d.day)::text as "firstDay",
         count(distinct d.device)::int as devices
@@ -155,7 +165,25 @@ export async function profile(login: string): Promise<Profile | null> {
       select d.model, d.tool, ${totalsCols(sql)}
       from usage_daily d where d.user_id = ${user.id}
       group by d.model, d.tool order by total desc limit 20`,
+    sql<{ day: string; rank: number; people: number; topModel: string | null }[]>`
+      with per_day as (
+        select user_id, day, sum(input + output + cache_read + cache_write) as total
+        from usage_daily where day > current_date - 30
+        group by user_id, day having sum(input + output + cache_read + cache_write) > 0
+      ), ranked as (
+        select user_id, day, rank() over (partition by day order by total desc)::int as rank,
+          count(*) over (partition by day)::int as people
+        from per_day
+      ), top_model as (
+        select distinct on (day) day, model from usage_daily
+        where user_id = ${user.id} and day > current_date - 30
+        group by day, model order by day, sum(input + output + cache_read + cache_write) desc
+      )
+      select r.day::text, r.rank, r.people, t.model as "topModel"
+      from ranked r left join top_model t on t.day = r.day
+      where r.user_id = ${user.id}`,
   ]);
+  const byDay = new Map(dayRanks.map((r) => [r.day, r]));
 
   return {
     login: user.login,
@@ -164,7 +192,10 @@ export async function profile(login: string): Promise<Profile | null> {
     lastSubmit: user.lastSubmit,
     allTime: { ...allTime[0] },
     rank30: rank[0]?.rank ?? null,
-    daily: plain(daily),
+    daily: daily.map((d) => {
+      const r = byDay.get(d.day);
+      return { ...d, rank: r?.rank ?? null, people: r?.people ?? 0, topModel: r?.topModel ?? null };
+    }),
     models: plain(models),
   };
 }

@@ -3,8 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Avatar } from "@/components/avatar";
 import { CompositionBar, TOKEN_TYPES, TokenLegend } from "@/components/composition-bar";
-import { formatDay, formatTokens, shortModel } from "@/lib/format";
-import { profile } from "@/lib/queries";
+import { formatDay, formatTokens, formatWeekday, shortModel } from "@/lib/format";
+import { profile, type Profile } from "@/lib/queries";
 
 const TOOL_NAMES: Record<string, string> = { claude: "Claude Code", codex: "Codex", copilot: "Copilot" };
 
@@ -98,6 +98,8 @@ async function Profile({ params }: { params: PageProps<"/u/[login]">["params"] }
         </div>
       </section>
 
+      <DailyReport daily={p.daily} />
+
       <section className="space-y-3">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 className="font-semibold">Models, all time</h2>
@@ -129,6 +131,79 @@ async function Profile({ params }: { params: PageProps<"/u/[login]">["params"] }
         </dl>
       </section>
     </>
+  );
+}
+
+const REPORT_TOOLS = [
+  { key: "claude", label: "Claude Code", color: "bg-claude" },
+  { key: "codex", label: "Codex", color: "bg-codex" },
+  { key: "copilot", label: "Copilot", color: "bg-copilot" },
+] as const;
+
+// DailyReport lists the days with tokens, newest first. A tool gets a column
+// only if this person used it in the 30 days.
+function DailyReport({ daily }: { daily: Profile["daily"] }) {
+  const days = daily.filter((d) => d.total > 0).reverse();
+  const tools = REPORT_TOOLS.filter((t) => days.some((d) => d[t.key] > 0));
+  return (
+    <section className="space-y-3">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 className="font-semibold">Daily report</h2>
+        <span className="text-xs text-muted">
+          {days.length} active {days.length === 1 ? "day" : "days"} in the last 30 · rank is among everyone that day
+        </span>
+      </div>
+      {days.length === 0 ? (
+        <p className="rounded-lg border border-dashed border-line p-6 text-center text-sm text-muted">
+          No tokens in the last 30 days.
+        </p>
+      ) : (
+        <div className="overflow-x-auto rounded-lg border border-line bg-card">
+          <table className="num w-full min-w-[36rem] text-sm">
+            <thead>
+              <tr className="border-b border-line text-left text-xs text-muted">
+                <th className="px-4 py-2.5 font-normal">Day</th>
+                {tools.map((t) => (
+                  <th key={t.key} className="px-3 py-2.5 text-right font-normal">
+                    <span className={`mr-1.5 inline-block size-2 rounded-sm ${t.color}`} />
+                    {t.label}
+                  </th>
+                ))}
+                <th className="px-3 py-2.5 text-right font-normal">Total</th>
+                <th className="px-3 py-2.5 text-right font-normal">Output</th>
+                <th className="px-3 py-2.5 text-right font-normal">Rank</th>
+                <th className="px-4 py-2.5 font-normal">Top model</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-line">
+              {days.map((d) => (
+                <tr key={d.day}>
+                  <td className="whitespace-nowrap px-4 py-2.5">{formatWeekday(d.day)}</td>
+                  {tools.map((t) => (
+                    <td key={t.key} className={`px-3 py-2.5 text-right ${d[t.key] ? "" : "text-muted"}`}>
+                      {d[t.key] ? formatTokens(d[t.key]) : "–"}
+                    </td>
+                  ))}
+                  <td className="px-3 py-2.5 text-right font-semibold">{formatTokens(d.total)}</td>
+                  <td className="px-3 py-2.5 text-right text-muted">{formatTokens(d.output)}</td>
+                  <td className={`whitespace-nowrap px-3 py-2.5 text-right ${d.rank === 1 ? "font-semibold text-gold" : ""}`}>
+                    {d.rank ? (
+                      <>
+                        #{d.rank}
+                        <span className="text-muted"> / {d.people}</span>
+                      </>
+                    ) : (
+                      "–"
+                    )}
+                  </td>
+                  <td className="max-w-48 truncate px-4 py-2.5 text-muted">{d.topModel ? shortModel(d.topModel) : "–"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
   );
 }
 
