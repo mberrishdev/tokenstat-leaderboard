@@ -1,16 +1,28 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Avatar } from "@/components/avatar";
+import { ShareButton } from "@/components/share-button";
 import { CompositionBar, TOKEN_TYPES, TokenLegend } from "@/components/composition-bar";
 import { formatDay, formatTokens, formatWeekday, shortModel } from "@/lib/format";
 import { profile, type Profile } from "@/lib/queries";
+import { SITE_URL } from "@/lib/site";
 
 const TOOL_NAMES: Record<string, string> = { claude: "Claude Code", codex: "Codex", copilot: "Copilot" };
 
-export async function generateMetadata({ params }: PageProps<"/u/[login]">) {
+export async function generateMetadata({ params }: PageProps<"/u/[login]">): Promise<Metadata> {
   const { login } = await params;
-  return { title: decodeURIComponent(login) };
+  const p = await profile(decodeURIComponent(login)).catch(() => null);
+  if (!p) return { title: decodeURIComponent(login) };
+  const description = shareText(p.login, p.rank30, p.daily.reduce((s, d) => s + d.total, 0));
+  return { title: p.login, description, openGraph: { description }, twitter: { description } };
+}
+
+// shareText is the line under a shared profile link.
+function shareText(login: string, rank: number | null, last30: number): string {
+  const place = rank ? `#${rank} on the tokenstat leaderboard` : "on the tokenstat leaderboard";
+  return `${login} is ${place} with ${formatTokens(last30)} tokens in the last 30 days.`;
 }
 
 export default function ProfilePage({ params }: PageProps<"/u/[login]">) {
@@ -48,6 +60,9 @@ async function Profile({ params }: { params: PageProps<"/u/[login]">["params"] }
             {p.allTime.firstDay && <> · data since {formatDay(p.allTime.firstDay)}</>}
             {p.allTime.devices > 1 && <> · {p.allTime.devices} machines</>}
           </p>
+        </div>
+        <div className="sm:ml-auto">
+          <ShareButton text={shareText(p.login, p.rank30, last30)} url={`${SITE_URL}/u/${encodeURIComponent(p.login)}`} />
         </div>
       </section>
 

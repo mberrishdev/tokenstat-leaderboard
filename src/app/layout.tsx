@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -16,7 +17,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: { default: "tokenstat leaderboard", template: "%s · tokenstat leaderboard" },
   description: "Who burns the most Claude Code, Codex, and Copilot tokens. Totals come from tokenstat, which reads local session logs.",
-  metadataBase: new URL("https://tokenstat-leaderboard.vercel.app"),
+  metadataBase: new URL(SITE_URL),
   twitter: { card: "summary_large_image" },
 };
 
