@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #f5f4ef;
+  --card: #fffefa;
+  --fg: #1c1b18;
+  --muted: #6e6a61;
+  --line: #e3e0d6;
+  --claude: #c25a36;
+  --codex: #2f62d0;
+  /* Token types, one hue from light to strong: cache read is the bulk. */
+  --t-cache-read: #ecd9c4;
+  --t-cache-write: #dba57a;
+  --t-input: #c0703f;
+  --t-output: #7f3a19;
+  --gold: #b88a12;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f0f0d;
+    --card: #171714;
+    --fg: #edebe4;
+    --muted: #8f8a80;
+    --line: #2a2924;
+    --claude: #e2805a;
+    --codex: #6d97f2;
+    --t-cache-read: #4a3426;
+    --t-cache-write: #8a5636;
+    --t-input: #c97a4a;
+    --t-output: #f1b88e;
+    --gold: #e5b73b;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-card: var(--card);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-claude: var(--claude);
+  --color-codex: var(--codex);
+  --color-gold: var(--gold);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.num {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
