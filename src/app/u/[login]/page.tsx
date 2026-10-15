@@ -46,6 +46,7 @@ async function Profile({ params }: { params: PageProps<"/u/[login]">["params"] }
               github.com/{p.login}
             </a>
             {p.allTime.firstDay && <> · data since {formatDay(p.allTime.firstDay)}</>}
+            {p.allTime.devices > 1 && <> · {p.allTime.devices} machines</>}
           </p>
         </div>
       </section>

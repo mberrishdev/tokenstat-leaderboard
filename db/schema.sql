@@ -17,9 +17,11 @@ create table if not exists api_tokens (
 );
 create index if not exists api_tokens_user_idx on api_tokens(user_id);
 
--- One row per user, local day, tool, and model.
+-- One row per user, machine, local day, tool, and model. device is a
+-- random id that each machine makes; '' is a row from before device ids.
 create table if not exists usage_daily (
   user_id     bigint not null references users(id) on delete cascade,
+  device      text   not null default '',
   day         date   not null,
   tool        text   not null check (tool in ('claude', 'codex', 'copilot')),
   model       text   not null,
@@ -29,9 +31,22 @@ create table if not exists usage_daily (
   cache_write bigint not null check (cache_write >= 0),
   calls       integer not null check (calls >= 0),
   updated_at  timestamptz not null default now(),
-  primary key (user_id, day, tool, model)
+  primary key (user_id, device, day, tool, model)
 );
 create index if not exists usage_daily_day_idx on usage_daily(day);
+
+-- Databases made before device ids keep one row per user, day, tool, and model.
+alter table usage_daily add column if not exists device text not null default '';
+do $$ begin
+  if not exists (
+    select from information_schema.key_column_usage
+    where table_schema = 'public' and table_name = 'usage_daily'
+      and constraint_name = 'usage_daily_pkey' and column_name = 'device'
+  ) then
+    alter table usage_daily drop constraint usage_daily_pkey;
+    alter table usage_daily add primary key (user_id, device, day, tool, model);
+  end if;
+end $$;
 
 -- Databases made before Copilot support allow only claude and codex.
 alter table usage_daily drop constraint if exists usage_daily_tool_check;

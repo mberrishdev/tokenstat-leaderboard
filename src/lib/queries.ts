@@ -115,7 +115,7 @@ export type Profile = {
   avatarUrl: string | null;
   joined: string;
   lastSubmit: string | null;
-  allTime: Totals & { activeDays: number; firstDay: string | null };
+  allTime: Totals & { activeDays: number; firstDay: string | null; devices: number };
   rank30: number | null;
   daily: (Totals & { day: string; claude: number; codex: number; copilot: number })[];
   models: (Totals & { model: string; tool: string })[];
@@ -131,8 +131,9 @@ export async function profile(login: string): Promise<Profile | null> {
   if (!user) return null;
 
   const [allTime, rank, daily, models] = await Promise.all([
-    sql<(Totals & { activeDays: number; firstDay: string | null })[]>`
-      select ${totalsCols(sql)}, count(distinct d.day)::int as "activeDays", min(d.day)::text as "firstDay"
+    sql<(Totals & { activeDays: number; firstDay: string | null; devices: number })[]>`
+      select ${totalsCols(sql)}, count(distinct d.day)::int as "activeDays", min(d.day)::text as "firstDay",
+        count(distinct d.device)::int as devices
       from usage_daily d where d.user_id = ${user.id}`,
     sql<{ rank: number }[]>`
       select rank::int from (
