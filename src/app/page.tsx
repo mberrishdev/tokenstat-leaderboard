@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { Avatar } from "@/components/avatar";
 import { CompositionBar, TokenLegend } from "@/components/composition-bar";
+import { Command, InstallTabs } from "@/components/install-tabs";
 import { ModelSelect } from "@/components/model-select";
 import { formatDay, formatTokens, shortModel } from "@/lib/format";
 import {
@@ -16,10 +17,6 @@ import {
   type Range,
   type Sort,
 } from "@/lib/queries";
-
-// Where people get a tokenstat build that has `login` and `submit`. Change it
-// to the upstream install once the feature is merged there.
-const INSTALL = "git clone https://github.com/mberrishdev/tokenstat && cd tokenstat && go install .";
 
 const RANGE_LABELS: Record<Range, string> = { "7d": "7 days", "30d": "30 days", "90d": "90 days", all: "All time" };
 const TOOL_LABELS = { all: "All tools", claude: "Claude Code", codex: "Codex", copilot: "Copilot" } as const;
@@ -195,15 +192,15 @@ function Join() {
   return (
     <section id="join" className="scroll-mt-8 space-y-4 rounded-lg border border-line bg-card p-5 sm:p-6">
       <h2 className="text-lg font-semibold">Join the board</h2>
-      <ol className="space-y-4 text-sm">
+      <ol className="space-y-5 text-sm">
         <Step n={1} text="Install tokenstat with leaderboard support:">
-          {INSTALL}
+          <InstallTabs />
         </Step>
         <Step n={2} text="Sign in with GitHub. It prints a code to enter on github.com:">
-          tokenstat login
+          <Command text="tokenstat login" />
         </Step>
         <Step n={3} text="Send your daily totals. Run it again any time to update:">
-          tokenstat submit
+          <Command text="tokenstat submit" />
         </Step>
       </ol>
       <p className="text-xs text-muted">
@@ -215,12 +212,12 @@ function Join() {
 
 function Step({ n, text, children }: { n: number; text: string; children: React.ReactNode }) {
   return (
-    <li className="space-y-1.5">
+    <li className="space-y-2">
       <p className="text-muted">
         <span className="num mr-2 text-fg">{n}.</span>
         {text}
       </p>
-      <pre className="num overflow-x-auto rounded-md border border-line bg-bg px-3 py-2 text-xs">{children}</pre>
+      {children}
     </li>
   );
 }
