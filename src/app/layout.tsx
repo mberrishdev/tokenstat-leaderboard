@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
+import { GitHubStars } from "@/components/github-stars";
 import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
@@ -34,9 +35,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <Link href="/#join" className="hover:text-fg">
                 Join
               </Link>
-              <a href="https://github.com/tornikegomareli/tokenstat" className="hover:text-fg">
-                tokenstat
-              </a>
+              <GitHubStars />
             </nav>
           </div>
         </header>
