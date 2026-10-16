@@ -5,7 +5,7 @@ import { useState } from "react";
 // Where tokenstat with leaderboard support is installed from. It is the fork
 // until tornikegomareli/tokenstat#1 is merged and released upstream; then
 // change it to "tornikegomareli/tokenstat".
-const REPO = "mberrishdev/tokenstat";
+const REPO = "tornikegomareli/tokenstat";
 
 const OPTIONS = [
   {
